@@ -2,7 +2,7 @@ import { useState, FormEvent, ChangeEvent } from 'react';
 import axios, { AxiosError, AxiosResponse } from 'axios';
 
 interface UploadResponse {
-  count: number;
+  insertedCount: number;
   message?: string;
 }
 
@@ -29,11 +29,12 @@ export default function FileUpload() {
 
     try {
       const response: AxiosResponse<UploadResponse> = await axios.post(
-        '/api/upload',
+        '/api/order/upload',
         formData,
         { headers: { 'Content-Type': 'multipart/form-data' } }
       );
-      alert(`Success! Processed ${response.data.count} orders.`);
+      console.log(response);
+      alert(`Success! Processed ${response.data.insertedCount} orders.`);
     } catch (err) {
       const error = err as AxiosError<{ message?: string }>;
       setError(error.response?.data?.message || error.message || 'Upload failed');
