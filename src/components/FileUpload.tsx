@@ -8,12 +8,18 @@ interface UploadResponse {
 
 export default function FileUpload() {
   const [file, setFile] = useState<File | null>(null);
+  const [platform, setPlatform] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     setFile(e.target.files?.[0] || null);
     setError(''); // Clear previous errors on new file selection
+  };
+
+  const handlePlatformChange = (e: ChangeEvent<HTMLSelectElement>) => {
+    setPlatform(e.target.value);
+    setError(''); // Clear previous errors on new platform selection
   };
 
   const handleSubmit = async (e: FormEvent) => {
@@ -26,15 +32,14 @@ export default function FileUpload() {
     setIsLoading(true);
     const formData = new FormData();
     formData.append('file', file);
+    formData.append('platform', platform);
 
     try {
       const response: AxiosResponse<UploadResponse> = await axios.post(
         '/api/order/upload',
-        formData,
-        { headers: { 'Content-Type': 'multipart/form-data' } }
+        formData
       );
-      console.log(response);
-      alert(`Success! Processed ${response.data.insertedCount} orders.`);
+      console.log(`Success! Processed ${response.data.insertedCount} orders.`);
     } catch (err) {
       const error = err as AxiosError<{ message?: string }>;
       setError(error.response?.data?.message || error.message || 'Upload failed');
@@ -54,8 +59,16 @@ export default function FileUpload() {
           onChange={handleFileChange}
           disabled={isLoading}
         />
-        <button 
-          type="submit" 
+        {/* implement a select with the values TEMU, EBAY, AMAZON */}
+        <label htmlFor="platform-select">Platform:</label>
+        <select id="platform-select" name="platform" onChange={handlePlatformChange} value={platform} disabled={isLoading}>
+          <option value="">Select Platform</option>
+          <option value="TEMU">TEMU</option>
+          <option value="EBAY">EBAY</option>
+          <option value="AMAZON">AMAZON</option>
+        </select>
+        <button
+          type="submit"
           disabled={!file || isLoading}
           className={isLoading ? 'loading' : ''}
         >
