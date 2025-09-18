@@ -1,5 +1,6 @@
 import { useState, FormEvent, ChangeEvent } from 'react';
-import axios, { AxiosError, AxiosResponse } from 'axios';
+import { AxiosError } from 'axios';
+import api from "../core/Api";
 
 interface UploadResponse {
   insertedCount: number;
@@ -15,6 +16,7 @@ export default function FileUpload() {
   const [entries, setEntries] = useState<FileEntry[]>([
     { file: null, platform: '' },
   ]);
+  const [orderReferenceStart, setOrderReferenceStart] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
   const [successMessage, setSuccessMessage] = useState<string>('');
@@ -61,24 +63,32 @@ export default function FileUpload() {
       }
     }
 
+    // validate reference start if provided
+    const trimmedRef = orderReferenceStart.trim();
+    if (trimmedRef && !/^\d+$/.test(trimmedRef)) {
+      setError('Reference number must be a positive integer (or left empty).');
+      return;
+    }
+
     setIsLoading(true);
 
     try {
       const formData = new FormData();
       entries.forEach((entry) => {
-        formData.append(`files`, entry.file as File);
-        formData.append(`platforms`, entry.platform);
+        formData.append('files', entry.file as File);
+        formData.append('platforms', entry.platform);
       });
 
-      const response: AxiosResponse<UploadResponse> = await axios.post(
-        '/api/order/upload',
-        formData
-      );
+      if (trimmedRef) {
+        // send the starting reference number (server should parse it as integer)
+        formData.append('orderReferenceStart', trimmedRef);
+      }
 
-      setSuccessMessage(
-        `✅ Success! Processed ${response.data.insertedCount} orders.`
-      );
-      setEntries([{ file: null, platform: '' }]); // reset
+      api.post<UploadResponse>('/batch/orders', formData).then(data => {
+        setSuccessMessage(`✅ Success! Processed ${data.insertedCount} orders.`);
+        setEntries([{ file: null, platform: '' }]);
+        setOrderReferenceStart('');
+      });
     } catch (err) {
       const error = err as AxiosError<{ message?: string }>;
       setError(error.response?.data?.message || error.message || 'Upload failed');
@@ -90,7 +100,26 @@ export default function FileUpload() {
   return (
     <div className="upload-container">
       <h2>📦 Upload Order Files</h2>
+
       <form onSubmit={handleSubmit} className="upload-form">
+        <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          Starting Reference Number (optional)
+          <input
+            type="number"
+            min="1"
+            value={orderReferenceStart}
+            onChange={(e) => setOrderReferenceStart(e.target.value)}
+            placeholder="e.g. 1000 — each created order will increment from here"
+            disabled={isLoading}
+            style={{
+              padding: 6,
+              border: '1px solid #ccc',
+              borderRadius: 6,
+              maxWidth: 240,
+            }}
+          />
+        </label>
+
         {entries.map((entry, index) => (
           <div key={index} className="upload-row">
             <input
@@ -98,11 +127,15 @@ export default function FileUpload() {
               accept=".xlsx,.csv,.tsv"
               onChange={(e) => handleFileChange(index, e)}
               disabled={isLoading}
+              title="Select order file (.xlsx, .csv, .tsv)"
+              placeholder="Choose a file"
             />
             <select
+              id={`platform-select-${index}`}
               value={entry.platform}
               onChange={(e) => handlePlatformChange(index, e)}
               disabled={isLoading}
+              title="Select Platform"
             >
               <option value="">Select Platform</option>
               <option value="TEMU">TEMU</option>
@@ -143,7 +176,7 @@ export default function FileUpload() {
       {error && <p className="error">{error}</p>}
       {successMessage && <p className="success">{successMessage}</p>}
 
-      <style jsx>{`
+      <style>{`
         .upload-container {
           max-width: 600px;
           margin: 20px auto;
@@ -164,7 +197,8 @@ export default function FileUpload() {
           gap: 10px;
         }
         select,
-        input[type='file'] {
+        input[type='file'],
+        input[type='number'] {
           padding: 6px;
           border: 1px solid #ccc;
           border-radius: 6px;
