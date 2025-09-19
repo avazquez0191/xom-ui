@@ -99,23 +99,20 @@ export default function FileUpload() {
 
   return (
     <div className="upload-container">
-      <h2>📦 Upload Order Files</h2>
+      <span>Upload Order Files</span>
 
       <form onSubmit={handleSubmit} className="upload-form">
-        <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          Starting Reference Number (optional)
+        <label style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+          Reference Number
           <input
             type="number"
             min="1"
             value={orderReferenceStart}
             onChange={(e) => setOrderReferenceStart(e.target.value)}
-            placeholder="e.g. 1000 — each created order will increment from here"
+            placeholder="e.g. 1000"
             disabled={isLoading}
             style={{
-              padding: 6,
-              border: '1px solid #ccc',
-              borderRadius: 6,
-              maxWidth: 240,
+              width: '100px',
             }}
           />
         </label>
@@ -142,27 +139,30 @@ export default function FileUpload() {
               <option value="EBAY">EBAY</option>
               <option value="AMAZON">AMAZON</option>
             </select>
-            {entries.length > 1 && (
+            {entries.length > 1 && entries.length - 1 === index && (
               <button
                 type="button"
                 className="remove-btn"
                 onClick={() => handleRemoveEntry(index)}
                 disabled={isLoading}
               >
-                ❌ Remove
+                ❌
+              </button>
+            )}
+            {entries.length - 1 === index && (
+              <button
+                type="button"
+                onClick={handleAddEntry}
+                className="add-btn"
+                disabled={isLoading}
+              >
+                ➕ Add Another File
               </button>
             )}
           </div>
         ))}
 
-        <button
-          type="button"
-          onClick={handleAddEntry}
-          className="add-btn"
-          disabled={isLoading}
-        >
-          ➕ Add Another File
-        </button>
+
 
         <button
           type="submit"
@@ -178,9 +178,8 @@ export default function FileUpload() {
 
       <style>{`
         .upload-container {
-          max-width: 600px;
-          margin: 20px auto;
           padding: 20px;
+          margin-bottom: 20px;
           border-radius: 8px;
           background: #f9fafb;
           box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
