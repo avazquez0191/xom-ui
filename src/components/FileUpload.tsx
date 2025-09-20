@@ -156,7 +156,7 @@ export default function FileUpload() {
                 className="add-btn"
                 disabled={isLoading}
               >
-                ➕ Add Another File
+                ➕ Add File
               </button>
             )}
           </div>

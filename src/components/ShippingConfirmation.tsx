@@ -22,8 +22,8 @@ interface OrderFormState {
 
 export default function ShippingConfirmation({ batch: batchId }: Props) {
     const [orders, setOrders] = useState<Order[]>([]);
-    const [courier, setCourier] = useState("");
-    const [service, setService] = useState("");
+    const [courier, setCourier] = useState("USPS");
+    const [service, setService] = useState("first-class");
     const [generalCost, setGeneralCost] = useState("");
     const [formState, setFormState] = useState<Record<string, OrderFormState>>({});
 
@@ -169,9 +169,11 @@ export default function ShippingConfirmation({ batch: batchId }: Props) {
         };
 
         api.post(`/batch/${batchId}/orders/confirm`, payload)
-            .then(() => {
+            .then((res) => {
                 setFormState({});
                 setOrders([]);
+                const data = res as { message: string, updatedCount: number };
+                alert(`✅ ${data.message} for ${data.updatedCount} orders.`);
             })
             .catch((err) => {
                 alert(
@@ -321,6 +323,7 @@ export default function ShippingConfirmation({ batch: batchId }: Props) {
                                         type="number"
                                         placeholder="Cost"
                                         value={state.cost || ""}
+                                        style={{ width: 50 }}
                                         onChange={(e) =>
                                             setFormState((prev) => ({
                                                 ...prev,
@@ -360,6 +363,7 @@ export default function ShippingConfirmation({ batch: batchId }: Props) {
           display: flex;
           flex-direction: column;
           gap: 10px;
+          margin-top: 15px;
         }
         .order-row {
           display: flex;
