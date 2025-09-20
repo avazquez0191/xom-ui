@@ -63,6 +63,12 @@ export default function FileUpload() {
       }
     }
 
+    // validates reference required
+    if (!orderReferenceStart) {
+      setError('Reference number is required.');
+      return;
+    }
+
     // validate reference start if provided
     const trimmedRef = orderReferenceStart.trim();
     if (trimmedRef && !/^\d+$/.test(trimmedRef)) {
@@ -88,6 +94,10 @@ export default function FileUpload() {
         setSuccessMessage(`✅ Success! Processed ${data.insertedCount} orders.`);
         setEntries([{ file: null, platform: '' }]);
         setOrderReferenceStart('');
+        //reload page after 500ms to show new orders
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
       });
     } catch (err) {
       const error = err as AxiosError<{ message?: string }>;
