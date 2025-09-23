@@ -155,9 +155,7 @@ export default function FileUpload() {
                 className="remove-btn"
                 onClick={() => handleRemoveEntry(index)}
                 disabled={isLoading}
-              >
-                ❌
-              </button>
+              > ❌ </button>
             )}
             {entries.length - 1 === index && (
               <button
@@ -165,9 +163,7 @@ export default function FileUpload() {
                 onClick={handleAddEntry}
                 className="add-btn"
                 disabled={isLoading}
-              >
-                ➕ Add File
-              </button>
+              > ➕ </button>
             )}
           </div>
         ))}

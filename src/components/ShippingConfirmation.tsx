@@ -305,6 +305,25 @@ export default function ShippingConfirmation({ batch: batchId }: Props) {
                                                             e.target.value
                                                         )
                                                     }
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === "Enter") {
+                                                            e.preventDefault();
+                                                            const refs = trackingRefs.current[order.orderId] || [];
+                                                            if (idx < refs.length - 1) {
+                                                                // Go to next tracking in same order
+                                                                refs[idx + 1]?.focus();
+                                                            } else {
+                                                                // Go to next order's Scan Order ID input
+                                                                const currentIndex = orders.findIndex(
+                                                                    (o) => o.orderId === order.orderId
+                                                                );
+                                                                const nextOrder = orders[currentIndex + 1];
+                                                                if (nextOrder) {
+                                                                    orderIdRefs.current[nextOrder.orderId]?.focus();
+                                                                }
+                                                            }
+                                                        }
+                                                    }}
                                                 />
                                             )
                                         )}
