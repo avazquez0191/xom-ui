@@ -6,6 +6,12 @@ interface Order {
     orderId: string;
     orderReferenceNumber: string;
     orderStatus: string;
+    shipping?: {
+        packages?: { products?: { sku: string; quantity: number }[] }[];
+    };
+    metadata?: {
+        platform?: string;
+    };
 }
 
 interface Props {
@@ -78,6 +84,9 @@ export default function ShippingConfirmation({ batch: batchId }: Props) {
             }
 
             if (formState[targetOrderId] && !formState[targetOrderId].confirmed) {
+                // Determine package count (fallback to 1 if missing)
+                const packageCount = match.shipping?.packages?.length || 1;
+
                 setFormState((prev) => ({
                     ...prev,
                     [targetOrderId]: {
@@ -85,7 +94,7 @@ export default function ShippingConfirmation({ batch: batchId }: Props) {
                         scannedOrderId: inputOrderId,
                         orderReferenceNumber: match.orderReferenceNumber,
                         confirmed: true,
-                        trackingNumbers: [""],
+                        trackingNumbers: Array(packageCount).fill(""),
                         cost: generalCost || prev[targetOrderId].cost,
                     },
                 }));
@@ -116,24 +125,6 @@ export default function ShippingConfirmation({ batch: batchId }: Props) {
         });
     };
 
-    const handleAddTracking = (orderId: string) => {
-        setFormState((prev) => {
-            const trackings = [...(prev[orderId]?.trackingNumbers || []), ""];
-            return {
-                ...prev,
-                [orderId]: {
-                    ...prev[orderId],
-                    trackingNumbers: trackings,
-                },
-            };
-        });
-
-        setTimeout(() => {
-            const refs = trackingRefs.current[orderId] || [];
-            refs[refs.length - 1]?.focus();
-        }, 0);
-    };
-
     // Apply general cost to all orders
     const handleGeneralCostChange = (value: string) => {
         setGeneralCost(value);
@@ -151,11 +142,13 @@ export default function ShippingConfirmation({ batch: batchId }: Props) {
 
     const allOrdersReady =
         orders.length > 0 &&
-        orders.every(
-            (o) =>
-                formState[o.orderId]?.trackingNumbers.length > 0 &&
+        orders.every((o) => {
+            const packageCount = o.shipping?.packages?.length || 1;
+            return (
+                formState[o.orderId]?.trackingNumbers.length === packageCount &&
                 formState[o.orderId]?.trackingNumbers.every((t) => t.trim() !== "")
-        );
+            );
+        });
 
     const handleConfirmShipping = () => {
         const payload = {
@@ -279,8 +272,7 @@ export default function ShippingConfirmation({ batch: batchId }: Props) {
                                                 <input
                                                     key={idx}
                                                     type="text"
-                                                    placeholder={`Tracking #${idx + 1
-                                                        }`}
+                                                    placeholder={`Tracking #${idx + 1}`}
                                                     value={tracking}
                                                     ref={(el) => {
                                                         if (
@@ -327,15 +319,7 @@ export default function ShippingConfirmation({ batch: batchId }: Props) {
                                                 />
                                             )
                                         )}
-                                        <button
-                                            type="button"
-                                            className="add-tracking-btn"
-                                            onClick={() =>
-                                                handleAddTracking(order.orderId)
-                                            }
-                                        >
-                                            ➕
-                                        </button>
+                                        {/* Add button removed: number of inputs is fixed by packages */}
                                     </div>
 
                                     <input

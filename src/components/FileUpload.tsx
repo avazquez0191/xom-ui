@@ -12,7 +12,11 @@ interface FileEntry {
   platform: string;
 }
 
-export default function FileUpload() {
+interface Props {
+  onManualLabelClick: () => void;
+}
+
+export default function FileUpload({ onManualLabelClick }: Props) {
   const [entries, setEntries] = useState<FileEntry[]>([
     { file: null, platform: '' },
   ]);
@@ -109,7 +113,12 @@ export default function FileUpload() {
 
   return (
     <div className="upload-container">
-      <span>Upload Order Files</span>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', marginBottom: '10px' }}>
+        <span>Upload Order Files</span>
+        <button type="button" onClick={onManualLabelClick} className="manual-btn">
+          ✍️ Manual Label
+        </button>
+      </div>
 
       <form onSubmit={handleSubmit} className="upload-form">
         <label style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
@@ -239,6 +248,16 @@ export default function FileUpload() {
         .success {
           color: #16a34a;
           font-weight: 500;
+        }
+        .manual-btn {
+          margin-top: 10px;
+          background: #facc15;
+          color: #1e293b;
+          padding: 10px;
+          border-radius: 6px;
+          font-weight: bold;
+          cursor: pointer;
+          border: none;
         }
       `}</style>
     </div>

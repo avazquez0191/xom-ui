@@ -23,8 +23,8 @@ export default function BatchesList({ onConfirmShipping, onConfirmPackages }: Pr
         api.get<Batch[]>("/batch").then(res => setBatches(res));
     }, []);
 
-    const handleDownload = async (batchId: string, labelFile: string) => {
-        if (!labelFile) return;
+    const handleDownload = async (batchId: string) => {
+        // if (!labelFile) return;
         setLoadingBatches(prev => ({ ...prev, [batchId]: true }));
         try {
             const response = await api.get<BlobPart>(`/batch/${batchId}/labels/print`, {
@@ -34,7 +34,8 @@ export default function BatchesList({ onConfirmShipping, onConfirmPackages }: Pr
             const url = window.URL.createObjectURL(blob);
             const link = document.createElement("a");
             link.href = url;
-            link.setAttribute("download", labelFile);
+            // link.setAttribute("download", labelFile);
+            link.setAttribute("target", "_blank");
             document.body.appendChild(link);
             link.click();
             link.remove();
@@ -86,7 +87,7 @@ export default function BatchesList({ onConfirmShipping, onConfirmPackages }: Pr
                                 </button>
                                 <button
                                     className="download-btn"
-                                    onClick={() => handleDownload(batch.id, batch.labelFile || '')}
+                                    onClick={() => handleDownload(batch.id)}
                                     disabled={loadingBatches[batch.id]}
                                 >
                                     ⬇️ Labels

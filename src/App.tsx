@@ -5,8 +5,9 @@ import BatchesList from './components/BatchesList'
 import ShippingConfirmation from './components/ShippingConfirmation'
 import PackageConfirmation from './components/PackageConfirmation'
 import { useState } from 'react'
+import ManualShippingLabel from './components/ManualShippingLabel'
 
-type RightPanelMode = 'shipping' | 'packages' | null
+type RightPanelMode = 'shipping' | 'packages' | 'manualLabel' | null;
 
 function App() {
   const [selectedBatchId, setSelectedBatchId] = useState<string | null>(null)
@@ -16,25 +17,32 @@ function App() {
     <div className="app-container">
       <div className="left-panel">
         <div className="file-upload-section">
-          <FileUpload />
+          <FileUpload onManualLabelClick={() => {
+            setSelectedBatchId(null);
+            setPanelMode("manualLabel");
+          }}/>
           <BatchesList
             onConfirmShipping={(batchId) => {
-              setSelectedBatchId(batchId)
-              setPanelMode('shipping')
+              setSelectedBatchId(batchId);
+              setPanelMode("shipping");
             }}
             onConfirmPackages={(batchId) => {
-              setSelectedBatchId(batchId)
-              setPanelMode('packages')
+              setSelectedBatchId(batchId);
+              setPanelMode("packages");
             }}
           />
         </div>
       </div>
+
       <div className="right-panel">
-        {selectedBatchId && panelMode === 'shipping' && (
+        {selectedBatchId && panelMode === "shipping" && (
           <ShippingConfirmation batch={selectedBatchId} />
         )}
-        {selectedBatchId && panelMode === 'packages' && (
+        {selectedBatchId && panelMode === "packages" && (
           <PackageConfirmation batch={selectedBatchId} />
+        )}
+        {panelMode === "manualLabel" && (
+          <ManualShippingLabel />
         )}
       </div>
 
