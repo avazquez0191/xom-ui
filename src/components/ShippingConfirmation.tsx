@@ -29,7 +29,7 @@ interface OrderFormState {
 export default function ShippingConfirmation({ batch: batchId }: Props) {
     const [orders, setOrders] = useState<Order[]>([]);
     const [courier, setCourier] = useState("USPS");
-    const [service, setService] = useState("first-class");
+    const [service, setService] = useState("First Class");
     const [generalCost, setGeneralCost] = useState("");
     const [formState, setFormState] = useState<Record<string, OrderFormState>>({});
 
@@ -204,9 +204,9 @@ export default function ShippingConfirmation({ batch: batchId }: Props) {
                         <option value="">-- Select --</option>
                         {courier === "USPS" && (
                             <>
-                                <option value="first-class">First Class</option>
-                                <option value="priority">Priority Mail</option>
-                                <option value="ground-advantage">Ground Advantage</option>
+                                <option value="First Class">First Class</option>
+                                <option value="Priority Mail">Priority Mail</option>
+                                <option value="Ground Advantage">Ground Advantage</option>
                             </>
                         )}
                         {courier === "UPS" && (
