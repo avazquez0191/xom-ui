@@ -65,6 +65,26 @@ export default function BatchesList({ onConfirmShipping, onConfirmPackages }: Pr
         }
     };
 
+    const handleExportAccounting = async (batchId: string) => {
+        setLoadingBatches(prev => ({ ...prev, [batchId]: true }));
+        try {
+            const response = await api.get<Blob>(`/batch/${batchId}/export/accounting`, {
+                responseType: "blob"
+            });
+            const blob = new Blob([response], { type: "application/zip" });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.setAttribute("download", `accounting-batch-${batchId}.zip`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
+        } finally {
+            setLoadingBatches(prev => ({ ...prev, [batchId]: false }));
+        }
+    };
+
     return (
         <div className="batches-container">
             {batches.map((batch) => (
@@ -105,6 +125,13 @@ export default function BatchesList({ onConfirmShipping, onConfirmPackages }: Pr
                                     disabled={loadingBatches[batch.id]}
                                 >
                                     📦 Export Shipping Confirmation
+                                </button>
+                                <button
+                                    className="export-btn"
+                                    onClick={() => handleExportAccounting(batch.id)}
+                                    disabled={loadingBatches[batch.id]}
+                                >
+                                    📊 Export Accounting
                                 </button>
                             </div>
                             <style>{`
