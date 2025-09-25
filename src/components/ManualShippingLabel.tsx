@@ -77,11 +77,14 @@ export default function ManualShippingLabel() {
           flex-direction: column;
           gap: 15px;
           font-family: sans-serif;
+          align-items: center;
         }
         .manual-label-form {
           display: flex;
           flex-direction: column;
           gap: 10px;
+          max-width: 500px;
+          min-width: 400px;
         }
         input {
           padding: 8px;
