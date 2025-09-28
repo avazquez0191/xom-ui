@@ -5,6 +5,7 @@ interface ManualShippingForm {
     name: string;
     line1: string;
     line2: string;
+    line3: string;
     city: string;
     state: string;
     zip: string;
@@ -15,6 +16,7 @@ export default function ManualShippingLabel() {
         name: "",
         line1: "",
         line2: "",
+        line3: "",
         city: "",
         state: "",
         zip: "",
@@ -46,8 +48,8 @@ export default function ManualShippingLabel() {
             link.remove();
             window.URL.revokeObjectURL(url);
             setMessage(`✅ Label generated successfully`);
-            setForm({ name: "", line1: "", line2: "", city: "", state: "", zip: "" });
-        } catch (err) {
+            setForm({ name: "", line1: "", line2: "", line3: "", city: "", state: "", zip: "" });
+        } catch {
             setMessage("❌ Failed to generate label");
         } finally {
             setIsLoading(false);
@@ -61,6 +63,7 @@ export default function ManualShippingLabel() {
                 <input name="name" placeholder="Recipient Name" value={form.name} onChange={handleChange} required />
                 <input name="line1" placeholder="Address Line 1" value={form.line1} onChange={handleChange} required />
                 <input name="line2" placeholder="Address Line 2" value={form.line2} onChange={handleChange} />
+                <input name="line3" placeholder="Address Line 3" value={form.line3} onChange={handleChange} />
                 <input name="city" placeholder="City" value={form.city} onChange={handleChange} required />
                 <input name="state" placeholder="State" value={form.state} onChange={handleChange} required />
                 <input name="zip" placeholder="Zip Code" value={form.zip} onChange={handleChange} required />
